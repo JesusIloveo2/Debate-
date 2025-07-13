@@ -17,6 +17,10 @@ export class DebateApp {
         this.submitUserResponse()
       } else if (e.target.id === 'new-debate-btn') {
         this.resetToWelcome()
+      } else if (e.target.id === 'continue-round-btn') {
+        this.continueToNextRound()
+      } else if (e.target.id === 'end-debate-btn') {
+        this.endDebate()
       }
     })
 
@@ -49,6 +53,17 @@ export class DebateApp {
 
     responseInput.disabled = false
     document.getElementById('submit-response-btn').disabled = false
+  }
+
+  async continueToNextRound() {
+    await this.debateEngine.continueToNextRound()
+    this.updateUI()
+  }
+
+  endDebate() {
+    this.debateEngine.endDebate()
+    this.currentState = 'results'
+    this.updateUI()
   }
 
   resetToWelcome() {

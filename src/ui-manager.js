@@ -19,8 +19,10 @@ export class UIManager {
     const progressHtml = this.renderProgress(debateState)
     const topicHtml = this.renderTopic(debateState.topic)
     const historyHtml = this.renderDebateHistory(debateState.debateHistory)
-    const ratingsHtml = this.renderRoundRatings(debateState.roundRatings)
-    const inputHtml = debateState.isComplete ? 
+    const ratingsHtml = this.renderRoundRatings(debateState.roundRatings, debateState.isWaitingForRoundDecision)
+    const inputHtml = debateState.isWaitingForRoundDecision ?
+      this.renderRoundDecision(debateState.currentRound, debateState.maxRounds) :
+      debateState.isComplete ? 
       this.renderDebateComplete() : 
       this.renderUserInput(debateState.isWaitingForUser)
 
@@ -84,10 +86,13 @@ export class UIManager {
     `
   }
 
-  renderRoundRatings(ratings) {
+  renderRoundRatings(ratings, showLatestOnly = false) {
     if (ratings.length === 0) return ''
     
-    const ratingsHtml = ratings.map(rating => `
+    // If showing latest only (for round decision), show just the most recent rating
+    const ratingsToShow = showLatestOnly ? [ratings[ratings.length - 1]] : ratings
+    
+    const ratingsHtml = ratingsToShow.map(rating => `
       <div class="round-rating">
         <h4>Round ${rating.round} Results</h4>
         <div class="scores">
@@ -100,14 +105,46 @@ export class UIManager {
             <span class="value">${rating.computerScore}/10</span>
           </div>
         </div>
-        <p class="feedback">${rating.feedback}</p>
+        <div class="explanations">
+          <div class="explanation">
+            <h5>Your Performance:</h5>
+            <p>${rating.userExplanation}</p>
+          </div>
+          <div class="explanation">
+            <h5>AI Performance:</h5>
+            <p>${rating.computerExplanation}</p>
+          </div>
+        </div>
+        ${rating.feedback ? `<p class="general-feedback">${rating.feedback}</p>` : ''}
       </div>
     `).join('')
 
     return `
       <div class="ratings-section">
-        <h3>Round Ratings</h3>
+        <h3>${showLatestOnly ? 'Round Complete!' : 'Round Ratings'}</h3>
         ${ratingsHtml}
+      </div>
+    `
+  }
+
+  renderRoundDecision(currentRound, maxRounds) {
+    const isLastRound = currentRound >= maxRounds
+    
+    return `
+      <div class="round-decision-section">
+        <h3>${isLastRound ? 'Debate Complete!' : 'Round Complete'}</h3>
+        <p>${isLastRound ? 
+          'You have completed all rounds of this debate. Review your performance above.' : 
+          'You have completed this round. Would you like to continue to the next round or end the debate here?'
+        }</p>
+        <div class="decision-buttons">
+          ${!isLastRound ? `
+            <button id="continue-round-btn" class="primary-btn">Continue to Round ${currentRound + 1}</button>
+            <button id="end-debate-btn" class="secondary-btn">End Debate</button>
+          ` : `
+            <button id="new-debate-btn" class="primary-btn">Start New Debate</button>
+          `}
+        </div>
       </div>
     `
   }

@@ -249,6 +249,94 @@ body {
   font-style: italic;
 }
 
+.explanations {
+  margin: 1rem 0;
+}
+
+.explanation {
+  margin-bottom: 1rem;
+}
+
+.explanation:last-child {
+  margin-bottom: 0;
+}
+
+.explanation h5 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.explanation p {
+  color: var(--text-secondary);
+  line-height: 1.5;
+  font-size: 0.875rem;
+}
+
+.general-feedback {
+  color: var(--text-secondary);
+  font-style: italic;
+  font-size: 0.875rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+/* Round Decision Section */
+.round-decision-section {
+  padding: 1.5rem;
+  text-align: center;
+  border-top: 1px solid var(--border);
+}
+
+.round-decision-section h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--success-color);
+}
+
+.round-decision-section p {
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+.decision-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.secondary-btn {
+  background: var(--surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 120px;
+}
+
+.secondary-btn:hover {
+  background: var(--background);
+  border-color: var(--border-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
+}
+
+.secondary-btn:active {
+  transform: translateY(0);
+}
+
 /* Input Section */
 .input-section {
   padding: 1.5rem;

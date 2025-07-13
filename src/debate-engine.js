@@ -78,14 +78,23 @@ export class DebateEngine {
 
   async completeRound() {
     // Rate the round
-    const rating = this.generateRoundRating()
+    const rating = this.generateRoundRating(this.debateHistory, this.currentRound)
     this.roundRatings.push({
       round: this.currentRound,
       userScore: rating.userScore,
       computerScore: rating.computerScore,
-      feedback: rating.feedback
+      feedback: rating.feedback,
+      userExplanation: rating.userExplanation,
+      computerExplanation: rating.computerExplanation
     })
 
+    // Set state to show round results and wait for user decision
+    this.isWaitingForRoundDecision = true
+  }
+
+  async continueToNextRound() {
+    this.isWaitingForRoundDecision = false
+    
     // Check if debate is complete
     if (this.currentRound >= this.maxRounds) {
       this.isDebateComplete = true
@@ -98,23 +107,53 @@ export class DebateEngine {
     await this.generateComputerArgument()
   }
 
-  generateRoundRating() {
-    // Simple random rating system for demo
+  endDebate() {
+    this.isWaitingForRoundDecision = false
+    this.isDebateComplete = true
+  }
+
+  generateRoundRating(debateHistory, round) {
+    // Get arguments from this round
+    const roundArguments = debateHistory.filter(entry => entry.round === round)
+    const userArguments = roundArguments.filter(entry => entry.speaker === 'user')
+    const computerArguments = roundArguments.filter(entry => entry.speaker === 'computer')
+    
+    // Generate scores
     const userScore = Math.floor(Math.random() * 4) + 7 // 7-10
     const computerScore = Math.floor(Math.random() * 4) + 7 // 7-10
     
-    const feedbacks = [
-      "Strong logical arguments presented by both sides.",
-      "Good use of evidence and reasoning.",
-      "Compelling points made throughout the round.",
-      "Well-structured arguments with clear positions.",
-      "Effective counterarguments and rebuttals."
-    ]
+    // Generate detailed explanations based on scores
+    const userExplanation = this.generateScoreExplanation(userScore, 'user', userArguments)
+    const computerExplanation = this.generateScoreExplanation(computerScore, 'computer', computerArguments)
+    
+    const generalFeedback = "Round completed with engaging arguments from both participants."
     
     return {
       userScore,
       computerScore,
-      feedback: feedbacks[Math.floor(Math.random() * feedbacks.length)]
+      feedback: generalFeedback,
+      userExplanation,
+      computerExplanation
+    }
+  }
+
+  generateScoreExplanation(score, speaker, arguments) {
+    const speakerName = speaker === 'user' ? 'You' : 'AI Opponent'
+    
+    if (score >= 9) {
+      return `${speakerName} delivered exceptional arguments with outstanding logical structure, compelling evidence, and masterful rhetoric. The points were articulated with precision and demonstrated deep understanding of the topic.`
+    } else if (score >= 8) {
+      return `${speakerName} presented strong, well-reasoned arguments with good supporting evidence. The logic was clear and the points were effectively communicated with minor areas for improvement.`
+    } else if (score >= 7) {
+      return `${speakerName} made solid arguments with decent reasoning. While the points were valid, there was room for stronger evidence or clearer articulation of key concepts.`
+    } else if (score >= 6) {
+      return `${speakerName} presented adequate arguments but lacked compelling evidence or clear logical progression. The points were understandable but not particularly persuasive.`
+    } else if (score >= 4) {
+      return `${speakerName} made weak arguments with limited supporting evidence. The reasoning was unclear in places and failed to effectively address key aspects of the topic.`
+    } else if (score >= 2) {
+      return `${speakerName} presented very poor arguments with little to no supporting evidence. The logic was flawed and the points were poorly articulated.`
+    } else {
+      return `${speakerName} delivered extremely weak arguments with no coherent structure or supporting evidence. The points were confusing and failed to engage with the topic meaningfully.`
     }
   }
 
@@ -179,7 +218,8 @@ export class DebateEngine {
       debateHistory: this.debateHistory,
       roundRatings: this.roundRatings,
       isComplete: this.isDebateComplete,
-      isWaitingForUser: this.currentTurn % 2 === 0 && !this.isDebateComplete
+      isWaitingForUser: this.currentTurn % 2 === 0 && !this.isDebateComplete && !this.isWaitingForRoundDecision,
+      isWaitingForRoundDecision: this.isWaitingForRoundDecision || false
     }
   }
 }
