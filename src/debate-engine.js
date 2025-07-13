@@ -38,8 +38,8 @@ export class DebateEngine {
     // Simulate AI thinking time
     await new Promise(resolve => setTimeout(resolve, 1000))
     
-    const arguments = this.getArgumentsForTopic(this.currentTopic)
-    const randomArgument = arguments[Math.floor(Math.random() * arguments.length)]
+    const topicArguments = this.getArgumentsForTopic(this.currentTopic)
+    const randomArgument = topicArguments[Math.floor(Math.random() * topicArguments.length)]
     
     this.debateHistory.push({
       speaker: 'computer',
@@ -137,7 +137,7 @@ export class DebateEngine {
     }
   }
 
-  generateScoreExplanation(score, speaker, arguments) {
+  generateScoreExplanation(score, speaker, debateArguments) {
     const speakerName = speaker === 'user' ? 'You' : 'AI Opponent'
     
     if (score >= 9) {
